@@ -26,7 +26,7 @@
 </head>
 <body>
   <h1>Política de privacidad de Drive Sentinel</h1>
-  <p class="updated">Última actualización: 20 de julio de 2026</p>
+  <p class="updated">Última actualización: 21 de julio de 2026</p>
 
   <div class="summary">
     <strong>Resumen:</strong> Drive Sentinel funciona por completo en tu dispositivo.
@@ -38,7 +38,7 @@
   <ul>
     <li><strong>Frecuencia cardíaca y variabilidad</strong> (HealthKit / Apple Watch): se usan en tiempo real para estimar signos de somnolencia. No se guardan fuera de HealthKit ni se envían a ningún sitio.</li>
     <li><strong>Sueño</strong> (HealthKit, opcional): si lo permites, la app estudia tus noches registradas para aprender cuánto baja tu pulso al dormirte y afinar la detección a tu patrón. Se procesa íntegramente en tu iPhone.</li>
-    <li><strong>Cámara</strong> (opcional): si activas la confirmación por cámara, las imágenes se analizan en directo en tu iPhone para detectar el cierre de ojos, bostezos, etc. Ningún fotograma se graba ni se transmite.</li>
+    <li id="datos-faciales"><strong>Datos faciales (cámara TrueDepth)</strong> (opcional): si activas la confirmación por cámara, la app usa la cámara TrueDepth de tu iPhone a través de ARKit para construir en tiempo real un mapa 3D de referencias de tu rostro mientras conduces. De ese mapa solo se calculan valores numéricos (apertura de los ojos, apertura de la mandíbula para detectar bostezos e inclinación de la cabeza) para reconocer signos de somnolencia. No se captura, guarda ni transmite ninguna fotografía, vídeo ni fotograma de tu cara: estos valores existen solo en la memoria del dispositivo durante la fracción de segundo en que se calculan, se descartan de inmediato y no se almacenan en ningún fichero, base de datos, registro ni copia de seguridad — ni en el dispositivo ni en ningún servidor, ya que la app no dispone de servidores ni conexión a internet. No se comparten con terceros.</li>
     <li><strong>Movimiento y ubicación:</strong> se usan para detectar automáticamente cuándo conduces y activar la monitorización. La ubicación no se almacena ni se comparte; solo se usa en el dispositivo para reconocer el trayecto.</li>
     <li><strong>Historial de viajes:</strong> se guarda solo en tu dispositivo (duración, número de avisos). Puedes borrarlo en cualquier momento desde la app.</li>
   </ul>
