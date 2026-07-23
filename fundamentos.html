@@ -50,14 +50,27 @@
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font-family: var(--body); line-height: 1.62; font-size: 17.5px;
+    transition: background-color .4s ease, color .4s ease;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background-image:
       repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 28px),
       repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 28px);
+    background-attachment: fixed;
   }
   @media (prefers-reduced-motion: no-preference) {
     .reveal { opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.7,.2,1) forwards; }
     @keyframes rise { to { opacity: 1; transform: none; } }
+    .inview { opacity: 0; transform: translateY(16px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+    .inview.on { opacity: 1; transform: none; }
+    .pulse-ring { animation: pulse-ring 3.2s ease-in-out infinite; }
+    @keyframes pulse-ring { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.14); } }
   }
+  .stage, .sig { transition: border-color .25s ease, background-color .25s ease; }
+  .stage:hover, .sig:hover { border-color: var(--accent); }
+  .track i { transition: filter .2s ease; }
+  .track:hover i { filter: brightness(1.15); }
   .wrap { max-width: 700px; margin: 0 auto; padding: 0 22px; }
 
   .eyebrow {
@@ -144,7 +157,9 @@
   .track i {
     position: absolute; inset: 0 auto 0 0; display: block;
     animation: grow 1s cubic-bezier(.2,.7,.2,1) both;
+    animation-play-state: paused;
   }
+  .chart.go .track i { animation-play-state: running; }
   @keyframes grow { from { width: 0 !important; } }
   @media (prefers-reduced-motion: reduce) { .track i { animation: none; } }
   .track b {
@@ -196,7 +211,7 @@
     <div class="brand">
       <svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true">
         <path d="M3 15 Q15 4 27 15 Q15 26 3 15 Z" fill="none" stroke="var(--accent)" stroke-width="2.4"/>
-        <circle cx="15" cy="15" r="4.4" fill="var(--accent)"/>
+        <circle class="pulse-ring" cx="15" cy="15" r="4.4" fill="var(--accent)" style="transform-box:fill-box; transform-origin:center;"/>
         <circle cx="15" cy="15" r="1.7" fill="var(--bg)"/>
       </svg>
       <b>Drive Sentinel</b><span class="v">fundamentos · v0.1</span>
@@ -214,14 +229,14 @@
 
 <main class="wrap">
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 01</span> — El problema</div>
     <h2>La somnolencia tiene firma fisiológica antes del microsueño</h2>
     <p>Quedarse dormido no es instantáneo. En los minutos previos, el sistema nervioso autónomo se desplaza hacia el dominio parasimpático: el pulso baja, la variabilidad cardíaca sube y el cuerpo se aquieta. Esa transición ya es medible con los sensores que llevas en la muñeca; el problema es leerla a tiempo sin disparar una alarma cada vez que simplemente te relajas al volante.</p>
     <p>Drive Sentinel trata la muñeca como un sensor barato y sensible, siempre encendido, y la cámara como un verificador caro y preciso que solo se activa cuando la muñeca ya sospecha algo. Cada señal, usada sola, comete demasiados errores para servir de alerta de seguridad; combinadas, se corrigen entre sí.</p>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 02</span> — Arquitectura</div>
     <h2>Dos etapas: la muñeca sospecha, la cámara confirma</h2>
     <p>Es el mismo principio que usan los sistemas profesionales de monitorización de conductor. La primera etapa (muñeca) corre siempre y es la única imprescindible; la segunda (cámara) es <strong>opcional</strong> y solo se enciende cuando hay motivo, lo que además protege batería y privacidad. Drive Sentinel funciona solo con el reloj si prefieres no activar la cámara — con menos precisión de confirmación, pero sin cámara en absoluto.</p>
@@ -244,7 +259,7 @@
     </div>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 03</span> — Señales</div>
     <h2>Qué mide la muñeca, y por qué</h2>
     <p>Cuatro señales, cada una un indicador independiente del desplazamiento autonómico hacia el sueño. Se combinan con pesos calibrados en una puntuación 0–1, suavizada y con histéresis para que no parpadee.</p>
@@ -279,7 +294,7 @@
     </div>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 04</span> — Validación</div>
     <h2>Cómo se prueba sin pruebas peligrosas</h2>
     <p>No se puede pedir a alguien que se duerma conduciendo para medir el acierto. La alternativa: reproducir fisiología real ya grabada y etiquetada. Usamos la base <a href="https://physionet.org/content/slpdb/" rel="noreferrer">MIT-BIH Polysomnographic (slpdb) de PhysioNet</a>, con ECG y fases de sueño marcadas por especialistas de sueño. La transición despierto → fase 1 → sueño comparte la misma firma autonómica que el adormecimiento al volante.</p>
@@ -287,7 +302,7 @@
     <p>El modelo tiene una implementación gemela en Python y en Swift, con un test de paridad que confirma que ambas coinciden hasta menos de 5×10⁻⁷ — para que lo que se calibra en el laboratorio sea literalmente lo que corre en el reloj.</p>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 05</span> — Hallazgos</div>
     <h2>Tres resultados que moldearon el algoritmo</h2>
 
@@ -317,7 +332,7 @@
     </div>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 06</span> — Calibración</div>
     <h2>El punto de operación, elegido a propósito</h2>
     <p>Como la cámara aporta la precisión final, calibramos la muñeca para detectar todo lo sospechoso (maximizar sensibilidad) y toleramos los falsos positivos que la segunda etapa filtrará después. El optimizador barrió cientos de combinaciones de pesos y umbrales contra los episodios reales.</p>
@@ -337,7 +352,7 @@
     <p class="muted" style="font-size:13px">* En la muñeca. La cámara de segunda etapa elimina la mayoría de esos falsos positivos antes de que llegue una alerta al conductor.</p>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 07</span> — Etapa 2 · opcional</div>
     <h2>La cámara: PERCLOS y microsueños, solo en tu iPhone</h2>
     <p>Esta etapa es <strong>opcional</strong> — se activa desde ajustes, si quieres la confirmación extra. Si la activas y la muñeca sospecha, la cámara TrueDepth analiza en tiempo real un mapa 3D de tu rostro (ARKit) para leer dos marcadores validados de somnolencia:</p>
@@ -362,7 +377,7 @@
     </div>
   </section>
 
-  <section>
+  <section class="inview">
     <div class="eyebrow"><span class="n">§ 08</span> — Límites</div>
     <h2>Lo que no afirmamos</h2>
     <p>Un producto de seguridad exige claridad sobre sus límites tanto como sobre sus capacidades.</p>
@@ -375,7 +390,7 @@
     </ul>
   </section>
 
-  <section class="refs">
+  <section class="inview refs">
     <div class="eyebrow"><span class="n">§ 09</span> — Referencias</div>
     <ol>
       <li>Ichimaru Y, Moody GB. <em>Development of the polysomnographic database on CD-ROM</em> (MIT-BIH slpdb). Psychiatry Clin Neurosci, 1999. · PhysioNet.</li>
@@ -437,5 +452,25 @@
       { name: 'Muñeca (fisiología)', sub: 'etapa 1 · disparador', v: 0.72, color: L1 },
       { name: 'Cámara (ojo cerrado)', sub: 'etapa 2 · confirmación', v: 0.986, color: L0 }
     ], true);
+
+    // Reveal each section as it enters view, and run its bar telemetry once visible.
+    if ('IntersectionObserver' in window) {
+      var sectionObs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('on'); sectionObs.unobserve(e.target); }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+      document.querySelectorAll('.inview').forEach(function (el) { sectionObs.observe(el); });
+
+      var chartObs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('go'); chartObs.unobserve(e.target); }
+        });
+      }, { threshold: 0.35 });
+      document.querySelectorAll('.chart').forEach(function (el) { chartObs.observe(el); });
+    } else {
+      document.querySelectorAll('.inview').forEach(function (el) { el.classList.add('on'); });
+      document.querySelectorAll('.chart').forEach(function (el) { el.classList.add('go'); });
+    }
   })();
 </script>
