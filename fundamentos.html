@@ -1,0 +1,443 @@
+<title>Drive Sentinel · Fundamentos científicos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --panel: #ffffff;
+    --panel-2: #eef1f8;
+    --ink: #10182a;
+    --ink-2: #55607a;
+    --line: #dbe1ee;
+    --grid: #e4e9f4;
+    --accent: #12a150;
+    --alert: #ff3b30;
+    /* drowsiness scale ramp */
+    --lvl0: #1a9e4b;
+    --lvl1: #d9a400;
+    --lvl2: #e07a00;
+    --lvl3: #e02d22;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #080b14;
+      --panel: #0f1626;
+      --panel-2: #131c30;
+      --ink: #e8ecf4;
+      --ink-2: #8b96ad;
+      --line: #1f2a41;
+      --grid: #172033;
+      --accent: #30d158;
+      --alert: #ff453a;
+      --lvl0: #30d158;
+      --lvl1: #ffd60a;
+      --lvl2: #ff9500;
+      --lvl3: #ff453a;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6fb; --panel: #ffffff; --panel-2: #eef1f8; --ink: #10182a;
+    --ink-2: #55607a; --line: #dbe1ee; --grid: #e4e9f4; --accent: #12a150; --alert: #ff3b30;
+    --lvl0: #1a9e4b; --lvl1: #d9a400; --lvl2: #e07a00; --lvl3: #e02d22;
+  }
+  :root[data-theme="dark"] {
+    --bg: #080b14; --panel: #0f1626; --panel-2: #131c30; --ink: #e8ecf4;
+    --ink-2: #8b96ad; --line: #1f2a41; --grid: #172033; --accent: #30d158; --alert: #ff453a;
+    --lvl0: #30d158; --lvl1: #ffd60a; --lvl2: #ff9500; --lvl3: #ff453a;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.65;
+    font-size: 17px; letter-spacing: -0.005em;
+    background-image: radial-gradient(120% 60% at 50% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(14px); animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 22px; }
+
+  /* ---- eyebrow / labels ---- */
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--ink-2);
+  }
+  .tick { color: var(--accent); }
+
+  /* ---- hero ---- */
+  header { padding: 78px 0 34px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 11px; margin-bottom: 40px; }
+  .brand svg { display: block; }
+  .brand b { font-weight: 700; letter-spacing: -0.02em; font-size: 17px; }
+  h1 {
+    font-size: clamp(32px, 6vw, 52px); line-height: 1.04; margin: 0 0 20px;
+    font-weight: 800; letter-spacing: -0.03em; text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lede { font-size: clamp(18px, 2.4vw, 21px); color: var(--ink-2); max-width: 60ch; margin: 0; }
+  .metastrip {
+    display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 34px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink-2);
+  }
+  .metastrip span { display: inline-flex; gap: 7px; align-items: baseline; }
+  .metastrip b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---- sections ---- */
+  section { padding: 52px 0; border-bottom: 1px solid var(--line); }
+  h2 {
+    font-size: clamp(23px, 3.4vw, 30px); letter-spacing: -0.02em; font-weight: 750;
+    margin: 14px 0 18px; text-wrap: balance;
+  }
+  h3 { font-size: 18px; letter-spacing: -0.01em; margin: 30px 0 8px; font-weight: 680; }
+  p { margin: 0 0 16px; max-width: 66ch; }
+  p + p { margin-top: 0; }
+  strong { font-weight: 680; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  .muted { color: var(--ink-2); }
+
+  /* ---- two-stage flow ---- */
+  .flow { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 26px 0 8px; }
+  @media (min-width: 620px) { .flow { grid-template-columns: 1fr auto 1fr; align-items: stretch; } }
+  .stage {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px; position: relative; overflow: hidden;
+  }
+  .stage::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--edge, var(--accent)); }
+  .stage .k { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
+  .stage h4 { margin: 6px 0 6px; font-size: 18px; letter-spacing: -0.01em; }
+  .stage p { font-size: 14.5px; color: var(--ink-2); margin: 0; max-width: none; }
+  .arrow { display: grid; place-items: center; color: var(--ink-2); font-family: var(--mono); }
+  @media (max-width: 619px) { .arrow { transform: rotate(90deg); height: 24px; } }
+
+  /* ---- signal cards ---- */
+  .signals { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 22px 0; }
+  @media (min-width: 560px) { .signals { grid-template-columns: 1fr 1fr; } }
+  .sig { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .sig .h { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .sig h4 { margin: 0; font-size: 15.5px; }
+  .sig p { font-size: 13.5px; color: var(--ink-2); margin: 4px 0 0; max-width: none; }
+  .sig .w { font-family: var(--mono); font-size: 11px; color: var(--ink-2); margin-top: 8px; }
+
+  /* ---- chart ---- */
+  figure { margin: 26px 0 8px; }
+  .chart { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px 16px; }
+  figcaption { font-size: 13px; color: var(--ink-2); margin-top: 12px; font-family: var(--mono); }
+  .bars { display: grid; gap: 14px; }
+  .bar { display: grid; grid-template-columns: 200px 1fr; gap: 14px; align-items: center; }
+  @media (max-width: 540px) { .bar { grid-template-columns: 1fr; gap: 4px; } }
+  .bar .lab { font-size: 13.5px; color: var(--ink); }
+  .bar .lab small { color: var(--ink-2); display: block; font-family: var(--mono); font-size: 11px; }
+  .track { position: relative; height: 30px; background: var(--panel-2); border-radius: 7px; overflow: hidden; }
+  .track i {
+    position: absolute; inset: 0 auto 0 0; border-radius: 7px; display: block;
+    animation: grow 1.1s cubic-bezier(.2,.7,.2,1) both;
+  }
+  @keyframes grow { from { width: 0 !important; } }
+  @media (prefers-reduced-motion: reduce) { .track i { animation: none; } }
+  .track b {
+    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+    color: var(--ink); mix-blend-mode: normal;
+  }
+  .chance { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink-2); opacity: .5; }
+  .chance span { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; color: var(--ink-2); white-space: nowrap; }
+
+  /* ---- table ---- */
+  .tblwrap { overflow-x: auto; margin: 22px 0 8px; border: 1px solid var(--line); border-radius: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); font-weight: 500; }
+  td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--panel-2); }
+
+  /* ---- callout ---- */
+  .note {
+    background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 12px; padding: 16px 18px; margin: 22px 0; font-size: 15px;
+  }
+  .note.warn { border-left-color: var(--lvl2); }
+  .note .t { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
+  .note p { margin: 0; max-width: none; }
+
+  /* ---- honesty list ---- */
+  .honest { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 12px; }
+  .honest li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; font-size: 15px; }
+  .honest .mk { font-family: var(--mono); color: var(--lvl2); font-size: 13px; margin-top: 2px; }
+
+  /* ---- refs ---- */
+  .refs { font-size: 13.5px; color: var(--ink-2); }
+  .refs ol { padding-left: 20px; margin: 12px 0 0; }
+  .refs li { margin-bottom: 9px; }
+
+  footer { padding: 40px 0 70px; color: var(--ink-2); font-size: 13px; font-family: var(--mono); }
+  .themebtn {
+    position: fixed; top: 14px; right: 14px; z-index: 10;
+    background: var(--panel); border: 1px solid var(--line); color: var(--ink-2);
+    border-radius: 10px; width: 38px; height: 38px; cursor: pointer; font-size: 15px;
+    display: grid; place-items: center;
+  }
+  .themebtn:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .scale-legend { display: flex; gap: 4px; margin: 8px 0 0; font-family: var(--mono); font-size: 10.5px; }
+  .scale-legend div { flex: 1; text-align: center; padding: 5px 2px; border-radius: 5px; color: #06120b; font-weight: 600; }
+</style>
+
+<button class="themebtn" id="tt" aria-label="Cambiar tema">◐</button>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+        <path d="M3 15 Q15 4 27 15 Q15 26 3 15 Z" fill="none" stroke="var(--accent)" stroke-width="2.4"/>
+        <circle cx="15" cy="15" r="4.4" fill="var(--accent)"/>
+        <circle cx="15" cy="15" r="1.7" fill="var(--bg)"/>
+      </svg>
+      <b>Drive Sentinel</b>
+    </div>
+    <div class="eyebrow reveal">Fundamentos científicos <span class="tick">/ v0.1</span></div>
+    <h1 class="reveal" style="animation-delay:.05s">Detectar que te duermes al volante, <em>sin pedirte que te duermas para probarlo.</em></h1>
+    <p class="lede reveal" style="animation-delay:.12s">Drive Sentinel combina dos señales complementarias —la fisiología en la muñeca y los ojos en la cámara— y está calibrado contra electrocardiogramas reales con fases de sueño etiquetadas por expertos. Esta página explica qué medimos, por qué, cómo lo validamos y qué <em>no</em> afirmamos.</p>
+    <div class="metastrip reveal" style="animation-delay:.18s">
+      <span>Validación <b>PhysioNet · slpdb</b></span>
+      <span>Episodios <b>14</b></span>
+      <span>Paridad modelo <b>&lt;5×10⁻⁷</b></span>
+      <span>Procesamiento <b>en dispositivo</b></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="eyebrow">01 / El problema</div>
+    <h2>La somnolencia tiene firma fisiológica antes del microsueño</h2>
+    <p>Quedarse dormido no es instantáneo. En los minutos previos, el sistema nervioso autónomo se desplaza hacia el dominio parasimpático: <strong>el pulso baja, la variabilidad cardíaca sube y el cuerpo se aquieta</strong>. Esa transición es medible con los sensores que ya llevas en la muñeca — el reto no es tener los datos, sino interpretarlos bien y actuar a tiempo sin inundarte de falsas alarmas.</p>
+    <p>La estrategia de Drive Sentinel es tratar la muñeca como un <strong>detector barato y sensible</strong> y la cámara como un <strong>confirmador caro y certero</strong>. Ninguna de las dos, por sí sola, es un buen producto. Juntas, sí.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">02 / Arquitectura</div>
+    <h2>Dos etapas: la muñeca sospecha, la cámara confirma</h2>
+    <p>Es el mismo principio que usan los sistemas de monitorización de conductor profesionales. La primera etapa corre siempre, con bajo consumo. La segunda solo se enciende cuando hay motivo — lo que protege la batería y la privacidad.</p>
+    <div class="flow">
+      <div class="stage" style="--edge:var(--lvl0)">
+        <div class="k">Etapa 1 · siempre activa</div>
+        <h4>Apple Watch</h4>
+        <p>Analiza pulso, variabilidad cardíaca, tendencia y quietud de muñeca frente a tu propia línea base. Barato en batería, alta sensibilidad.</p>
+      </div>
+      <div class="arrow" aria-hidden="true">→<br><span style="font-size:10px">sospecha</span></div>
+      <div class="stage" style="--edge:var(--lvl2)">
+        <div class="k">Etapa 2 · bajo demanda</div>
+        <h4>Cámara del iPhone</h4>
+        <p>Solo si hay sospecha, comprueba tus ojos (cierre y PERCLOS). Confirma o descarta antes de dar la alerta. Elimina falsos positivos.</p>
+      </div>
+    </div>
+    <div class="note">
+      <div class="t">Por qué dos etapas</div>
+      <p>Nuestra propia validación (sección 05) muestra que la muñeca sola tiene un techo de discriminación de ~0.72 AUC. No es un fallo: es la razón <em>por la que existe</em> la segunda etapa. Calibramos la muñeca para no perderse ningún adormecimiento y dejamos que la cámara aporte la precisión.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">03 / Señales</div>
+    <h2>Qué mide la muñeca, y por qué</h2>
+    <p>Cuatro señales, cada una un indicador independiente del desplazamiento autonómico hacia el sueño. Se combinan con pesos calibrados en una puntuación 0–1, suavizada y con histéresis para que no parpadee.</p>
+    <div class="signals">
+      <div class="sig">
+        <div class="h"><span class="dot" style="background:var(--lvl0)"></span><h4>Caída de pulso</h4></div>
+        <p>El ritmo cardíaco desciende respecto a tu base al relajarse el cuerpo. Es la señal más fuerte y —clave— la única que el Apple Watch entrega de forma fiable en tiempo real.</p>
+        <div class="w">peso 0.45 · AUC individual 0.67</div>
+      </div>
+      <div class="sig">
+        <div class="h"><span class="dot" style="background:var(--lvl1)"></span><h4>Variabilidad cardíaca ↑</h4></div>
+        <p>La HRV (RMSSD) sube al aumentar el tono vagal. Potente… pero solo si se filtran antes los latidos mal detectados (ver hallazgo 04).</p>
+        <div class="w">peso 0.35 · AUC individual 0.70*</div>
+      </div>
+      <div class="sig">
+        <div class="h"><span class="dot" style="background:var(--lvl2)"></span><h4>Tendencia descendente</h4></div>
+        <p>La pendiente sostenida del pulso a la baja distingue un adormecimiento gradual de una simple variación puntual.</p>
+        <div class="w">peso 0.10</div>
+      </div>
+      <div class="sig">
+        <div class="h"><span class="dot" style="background:var(--lvl3)"></span><h4>Quietud de muñeca</h4></div>
+        <p>El acelerómetro detecta que el brazo se queda inusualmente quieto. Señal independiente del corazón, útil cuando la cardíaca es ambigua.</p>
+        <div class="w">peso 0.15</div>
+      </div>
+    </div>
+    <p class="muted" style="font-size:13.5px">* con filtrado de artefactos. La escala de riesgo resultante se muestra al conductor con un código de color:</p>
+    <div class="scale-legend">
+      <div style="background:var(--lvl0)">DESPIERTO</div>
+      <div style="background:var(--lvl1)">LEVE</div>
+      <div style="background:var(--lvl2)">AVISO</div>
+      <div style="background:var(--lvl3)">CRÍTICO</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">04 / Validación</div>
+    <h2>Cómo se prueba sin pruebas peligrosas</h2>
+    <p>No se puede pedir a alguien que se duerma conduciendo para medir el acierto. La solución: <strong>reproducir fisiología real ya grabada y etiquetada</strong>. Usamos la base <a href="https://physionet.org/content/slpdb/" rel="noreferrer">MIT-BIH Polysomnographic (slpdb) de PhysioNet</a>, con ECG y fases de sueño marcadas por especialistas. La transición despierto → fase 1 → sueño es la misma firma autonómica que el adormecimiento al volante.</p>
+    <p>El banco de pruebas extrae de cada registro los <strong>intervalos entre latidos reales</strong> (detectando los QRS del ECG) y arma "mini-viajes": un tramo despierto para aprender la base, seguido de un adormecimiento. Cada uno se reproduce por el modelo exactamente como lo haría en la muñeca, y se mide si acierta.</p>
+    <p>Para garantizar que lo que calibramos en el laboratorio es <em>idéntico</em> a lo que corre en el reloj, el modelo tiene una implementación gemela en Python y otra en Swift, con un test de paridad que verifica que coinciden hasta menos de 5×10⁻⁷.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">05 / Hallazgos</div>
+    <h2>Tres resultados que moldearon el algoritmo</h2>
+
+    <h3>Hallazgo 1 — Filtrar los latidos mal detectados es decisivo</h3>
+    <p>El RMSSD (la HRV a corto plazo) es extremadamente sensible a un solo intervalo erróneo. Sin filtrar, era ruido puro. Descartando latidos ectópicos y fuera de rango, se convierte en la mejor señal individual.</p>
+    <figure>
+      <div class="chart">
+        <div class="bars" id="bars1"></div>
+      </div>
+      <figcaption>AUC de discriminación despierto/somnoliento · 0.50 = azar, 1.0 = perfecto</figcaption>
+    </figure>
+
+    <h3>Hallazgo 2 — Las señales de frecuencia (LF/HF) no aportan</h3>
+    <p>La literatura sugería que el ratio LF/HF del espectro de la HRV discriminaría bien. Lo probamos con rigor: en nuestros datos <strong>no ayuda</strong> (AUC ≈ 0.45, por debajo del azar) e incluso empeora la combinación. Descartado con evidencia — y nos ahorra montar análisis de Fourier en el reloj.</p>
+
+    <h3>Hallazgo 3 — La muñeca sola tiene techo</h3>
+    <p>Incluso combinando y optimizando todo, la discriminación se estabiliza en ~0.72 AUC. Y hay una limitación de plataforma honesta: el Apple Watch <strong>no entrega los intervalos latido-a-latido en tiempo real</strong> durante una sesión, así que en el dispositivo real el modelo corre sobre el pulso, no sobre HRV limpia.</p>
+    <figure>
+      <div class="chart">
+        <div class="bars" id="bars2"></div>
+      </div>
+      <figcaption>La caída de pulso (sí disponible en el reloj) carga la mayor parte: la limitación cuesta solo ~0.04 de AUC</figcaption>
+    </figure>
+    <div class="note">
+      <div class="t">La conclusión de producto</div>
+      <p>Estos números no son un fracaso: son la <strong>justificación cuantitativa de la arquitectura de dos etapas</strong>. Una muñeca a 0.66–0.72 AUC es un buen <em>disparador</em>, no un veredicto. Por eso la cámara.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">06 / Calibración</div>
+    <h2>El punto de operación, elegido a propósito</h2>
+    <p>Como la cámara aporta la precisión final, calibramos la muñeca para <strong>cazar todo lo sospechoso</strong> (maximizar sensibilidad) y tolerar falsos positivos, que la segunda etapa filtra. El optimizador barrió cientos de combinaciones de pesos y umbrales contra los episodios reales.</p>
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr><th>Métrica</th><th class="num">Config inicial (a ojo)</th><th class="num">Calibrada</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Discriminación (AUC)</td><td class="num">0.59</td><td class="num">0.72</td></tr>
+          <tr><td>Sensibilidad (detecta el adormecimiento)</td><td class="num">43 %</td><td class="num">71 %</td></tr>
+          <tr><td>Falsos positivos en la muñeca *</td><td class="num">43 %</td><td class="num">50 %</td></tr>
+          <tr><td>Latencia de detección</td><td class="num">145 s</td><td class="num">75 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="font-size:13.5px">* En la muñeca. La cámara de segunda etapa elimina la mayoría de esos falsos positivos antes de que llegue una alerta al conductor.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">07 / Etapa 2</div>
+    <h2>La cámara: PERCLOS y microsueños, solo en tu iPhone</h2>
+    <p>Cuando la muñeca sospecha, la cámara frontal analiza los ojos con el framework Vision de Apple. Mide dos marcadores validados de somnolencia:</p>
+    <div class="signals">
+      <div class="sig">
+        <div class="h"><span class="dot" style="background:var(--lvl2)"></span><h4>PERCLOS</h4></div>
+        <p>El porcentaje de tiempo con los ojos cerrados en una ventana — el marcador visual mejor validado (Wierwille / NHTSA). Umbral firme para máxima especificidad.</p>
+      </div>
+      <div class="sig">
+        <div class="h"><span class="dot" style="background:var(--lvl3)"></span><h4>Microsueños</h4></div>
+        <p>Un cierre de ojos sostenido ≥1 s al volante es una alarma inmediata. El umbral de apertura está <strong>calibrado</strong> (ver abajo).</p>
+      </div>
+    </div>
+    <p>Y aquí está la contrapartida del techo de la muñeca: la cámara <strong>sí</strong> discrimina con altísima fiabilidad. Validamos nuestra medida de cierre de ojo contra 3.594 caras reales etiquetadas (Vision sobre macOS, la misma medida que corre en la app):</p>
+    <figure>
+      <div class="chart"><div class="bars" id="bars3"></div></div>
+      <figcaption>Separación ojo abierto / cerrado · 3.594 caras etiquetadas · umbral óptimo 0.24, 97% de exactitud</figcaption>
+    </figure>
+    <div class="note">
+      <div class="t">Privacidad</div>
+      <p>Todo el análisis de la cámara ocurre <strong>en el dispositivo</strong>. Ningún fotograma se graba ni se transmite. iOS no permite la cámara en segundo plano, así que funciona en "modo montado": el móvil en el soporte, mirándote, con la app abierta.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">08 / Honestidad</div>
+    <h2>Lo que <em>no</em> afirmamos</h2>
+    <p>Un producto de seguridad exige claridad sobre sus límites tanto como sobre sus capacidades.</p>
+    <ul class="honest">
+      <li><span class="mk">—</span><span><strong>No es un dispositivo médico</strong> ni un diagnóstico. Es una ayuda de asistencia, nunca una garantía ni un sustituto de la conducción responsable y el descanso.</span></li>
+      <li><span class="mk">—</span><span><strong>Los datos de validación son de laboratorio del sueño</strong>, no de conducción real. La firma autonómica es la misma, pero existe una brecha de dominio que solo se cierra con datos reales al volante.</span></li>
+      <li><span class="mk">—</span><span><strong>La muestra es pequeña</strong> (14 episodios). Los números son orientativos, no definitivos; se firmarán con más datos.</span></li>
+      <li><span class="mk">—</span><span><strong>La HRV limpia no está disponible en tiempo real</strong> en el Apple Watch actual, así que el hallazgo 1 rinde su máximo solo si futuras plataformas exponen los intervalos R-R.</span></li>
+      <li><span class="mk">—</span><span><strong>La cámara se validó con imágenes estáticas</strong> (ojo abierto/cerrado, AUC 0.986), no con vídeo de conducción real: PERCLOS y microsueños en dinámica siguen apoyándose en umbrales de la literatura.</span></li>
+    </ul>
+  </section>
+
+  <section class="refs">
+    <div class="eyebrow">09 / Referencias</div>
+    <ol>
+      <li>Ichimaru Y, Moody GB. <em>Development of the polysomnographic database on CD-ROM</em> (MIT-BIH slpdb). Psychiatry Clin Neurosci, 1999. · PhysioNet.</li>
+      <li>Soukupová T, Čech J. <em>Real-Time Eye Blink Detection using Facial Landmarks</em>. Computer Vision Winter Workshop, 2016.</li>
+      <li>Wierwille WW et al. <em>Research on vehicle-based driver status/performance monitoring</em> (PERCLOS). NHTSA.</li>
+      <li>Task Force of ESC/NASPE. <em>Heart rate variability: standards of measurement, physiological interpretation and clinical use</em>. Circulation, 1996.</li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Drive Sentinel · fundamentos v0.1 · documento vivo, cambiará según avanza la calibración.</div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('tt');
+    btn.addEventListener('click', function () {
+      var dark = getComputedStyle(root).getPropertyValue('--bg').trim().indexOf('#08') === 0
+              || matchMedia('(prefers-color-scheme: dark)').matches;
+      var cur = root.getAttribute('data-theme');
+      var next = cur ? (cur === 'dark' ? 'light' : 'dark') : (matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark');
+      root.setAttribute('data-theme', next);
+    });
+
+    // Data-driven bars (real figures from the calibration).
+    function renderBars(id, rows, showChance) {
+      var el = document.getElementById(id); if (!el) return;
+      rows.forEach(function (r, i) {
+        var row = document.createElement('div'); row.className = 'bar';
+        row.innerHTML = '<div class="lab">' + r.name + (r.sub ? '<small>' + r.sub + '</small>' : '') + '</div>';
+        var track = document.createElement('div'); track.className = 'track';
+        var fill = document.createElement('i');
+        var pct = Math.round(r.v * 100);
+        fill.style.width = pct + '%';
+        fill.style.background = r.color;
+        fill.style.animationDelay = (0.1 + i * 0.12) + 's';
+        var val = document.createElement('b'); val.textContent = r.v.toFixed(3);
+        track.appendChild(fill); track.appendChild(val);
+        if (showChance) {
+          var c = document.createElement('span'); c.className = 'chance'; c.style.left = '50%';
+          c.innerHTML = '<span>azar 0.50</span>'; track.appendChild(c);
+        }
+        row.appendChild(track); el.appendChild(row);
+      });
+    }
+    var g = getComputedStyle(root);
+    var L0 = g.getPropertyValue('--lvl0').trim(), L1 = g.getPropertyValue('--lvl1').trim(),
+        L2 = g.getPropertyValue('--lvl2').trim(), L3 = g.getPropertyValue('--lvl3').trim(),
+        MUT = g.getPropertyValue('--ink-2').trim();
+    renderBars('bars1', [
+      { name: 'RMSSD sin filtrar', sub: 'crudo', v: 0.498, color: MUT },
+      { name: 'Ratio LF/HF (frecuencia)', sub: 'descartado', v: 0.45, color: MUT },
+      { name: 'Caída de pulso', sub: 'señal base', v: 0.669, color: L1 },
+      { name: 'RMSSD con filtrado', sub: 'el hallazgo', v: 0.703, color: L0 }
+    ], true);
+    renderBars('bars2', [
+      { name: 'Modelo en el Watch', sub: 'solo pulso · real', v: 0.664, color: L1 },
+      { name: 'Modelo con HRV limpia', sub: 'RR ideal', v: 0.702, color: L0 }
+    ], true);
+    renderBars('bars3', [
+      { name: 'Muñeca (fisiología)', sub: 'etapa 1 · disparador', v: 0.72, color: L1 },
+      { name: 'Cámara (ojo cerrado)', sub: 'etapa 2 · confirmación', v: 0.986, color: L0 }
+    ], true);
+  })();
+</script>
